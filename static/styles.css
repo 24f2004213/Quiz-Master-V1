@@ -1,0 +1,43 @@
+/* Full-page animated background */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: #020817 ;
+    background-size: 400% 400%;
+    animation: gradientAnimation 10s ease infinite;
+}
+
+/* Smooth gradient animation */
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 🔥 Navbar Background (100xDevs Style) */
+.navbar {
+    background: #020817 !important;  /* Deep purple with transparency */
+    backdrop-filter: blur(10px); /* Blur effect */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+}
+
+/* Navbar Links */
+.navbar .nav-link,
+.navbar-brand {
+    color: white !important;
+}
+
+/* 🔥 Fix Dropdown Menu */
+.dropdown-menu {
+    background-color: rgba(15, 5, 29, 0.9);
+}
+
+.dropdown-item {
+    color: white;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
