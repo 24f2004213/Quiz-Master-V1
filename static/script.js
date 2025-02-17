@@ -16,4 +16,4 @@ function changeGradient() {
     step++;
 }
 
-setInterval(changeGradient, 5000); // Change color every 5 seconds
+setInterval(changeGradient, 5000); 
