@@ -1,25 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} Project-01 {% endblock %}</title>
     {% block bootstrap_css %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     {% endblock %}
     {% block custom_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     {% endblock %}
-    
-    
+    <style>
+        .heading-sec {
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 60vh;
+            color: white;
+            font-size: 50px;
+            font-weight: 800;
+            background: #020817 !important;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        .subheading{
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: 400;
+            color: #cccccc;
+        }
+        .login-btn{
+            font-size: 22px;
+            background-image: linear-gradient(to top, #0d6efd  51%, #00c6ff  100%);
+            color: white;
+            border-radius: 5px;
+        }
+        .signup-btn{
+            font-size: 22px;
+            background-color: white;
+            border-radius: 5px;
+        }
+    </style>
+
 </head>
+
 <body>
     <!--navigation bar-->
     {% include 'navbar.html' %}
     <div class="background">
-    <div class="container text-center text-white position-relative">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-    </div>
+        <div class="container text-center text-white position-relative">
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous"></script>
+
+
+            <div class="heading-sec">
+                <h1>Unleash Your Knowledge <br>&nbsp &nbsp with Quiz Master!</h1>
+                <h2 class="subheading">Create, share, and participate in engaging quizzes.<br>
+                    Test your skills, compete with friends, and explore a world of knowledge.</h2>
+                    <div>
+                    <button class="login-btn">Login</button>
+                    <button class="signup-btn">Signup</button>
+                </div>
+            </div>
+            
+        </div>
+
 </body>
+
 </html>
