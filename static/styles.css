@@ -2,10 +2,11 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    overflow-x: auto;
     background: #020817 ;
     background-size: 400% 400%;
-    animation: gradientAnimation 10s ease infinite;
+    backdrop-filter: blur(10px);
+    scroll-behavior: smooth;
 }
 
 @keyframes gradientAnimation {
