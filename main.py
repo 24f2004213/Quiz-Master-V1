@@ -3,7 +3,7 @@ from controller.database import db
 from controller.config import config
 from controller.models import *
 
-app = Flask(__name__, template_folder='templates',static_folder='static')
+app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
 
@@ -33,4 +33,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':  
-    app.run()
+    app.run(debug=True)
