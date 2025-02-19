@@ -2,12 +2,14 @@ from controller.database import db
 
 class User(db.Model):
 
-    # __tablename__ = 'user'
+    __tablename__ = 'user'
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
     user_name = db.Column(db.String(50), nullable=False)
+    user_qualification = db.Column(db.String(50), nullable=False)
+    dob = db.Column(db.Date, nullable=False)
     roles = db.relationship('Role', secondary='user_role', backref='users', lazy=True)
 
 class Role(db.Model):
