@@ -33,8 +33,14 @@ def login():
         
         session['user_email'] = user.user_email
         session['user_role'] = [role.name for role in user.roles]
-        #Redirect to homepage
-        return render_template('home.html')
+        admin_role = Role.query.filter_by(name="admin").first()
+    
+    if admin_role and admin_role in user.roles:
+        session['user_role'] = "admin"
+        return redirect(url_for('home'))
+    else:  
+        session['user_role'] = "user"
+        return redirect(url_for('user_dashboard'))
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

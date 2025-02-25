@@ -9,3 +9,6 @@ def index():
 @app.route('/home')
 def home():
     return render_template('home.html')
+@app.route('/user_dashboard')
+def user_dashboard():
+    return render_template('user_dashboard.html')
