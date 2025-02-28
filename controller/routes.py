@@ -12,3 +12,6 @@ def home():
 @app.route('/user_dashboard')
 def user_dashboard():
     return render_template('user_dashboard.html')
+@app.route('/subject')
+def subject():
+    return render_template('subject.html')
