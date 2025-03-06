@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUbject</title>
+    <title>Chapter</title>
     <style>
-        .add-subject{
+        .add-chapter{
             background-color: white;
             padding: 2rem;
             padding-top: 0.2rem;
@@ -61,9 +61,9 @@
 </head>
 
 <body>
-    <div class="add-subject">
-        <h1>New Subject</h1>
-        <form method="POST" action="{{url_for('subject')}}">
+    <div class="add-chapter">
+        <h1>New Chapter</h1>
+        <form action="{{url_for('chapter', subject_id = subject.id)}}" method="POST">
             <div class="form-group">
                 <label for="name">Name: </label>
                 <input type="text" id="name" name="name" required>
