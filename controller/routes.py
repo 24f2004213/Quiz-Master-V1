@@ -3,6 +3,7 @@ from flask import render_template, request, session, flash, redirect, url_for
 from controller.database import db
 from controller.models import *
 from datetime import datetime
+from flask_login import LoginManager,UserMixin, login_required, current_user, login_user, logout_user
 
 @app.route('/')
 def index():
@@ -14,7 +15,17 @@ def home():
     return render_template('home.html', subjects=subjects)
 @app.route('/user_dashboard')
 def user_dashboard():
-    return render_template('user_dashboard.html')
+    quizzes = db.session.query(
+        Quiz.id,
+        Quiz.title,
+        Chapter.name.label("chapter_name"),
+        Subject.name.label("subject_name"),  # Fetch subject name
+        Quiz.date_of_quiz,
+        Quiz.time_duration
+    ).join(Chapter, Quiz.chapter_id == Chapter.id) \
+     .join(Subject, Chapter.subject_id == Subject.id) \
+     .all()
+    return render_template('user_dashboard.html', quizzes=quizzes, user = current_user)
 @app.route('/subject', methods=['GET', 'POST'])
 def subject():
     if request.method == 'POST':
@@ -193,3 +204,35 @@ def delete_question(question_id):
     flash('Question deleted successfully!', 'success')
 
     return redirect(url_for('quiz_list'))  # Redirect to quiz list page
+
+@app.route('/quiz/<int:quiz_id>', methods=['GET', 'POST'])
+@login_required
+def quiz(quiz_id):
+    if not current_user.is_authenticated:
+        flash("You need to sign in first!", "warning")
+        return redirect(url_for('login'))  # This should NOT happen if the user is signed in
+
+    quiz = Quiz.query.get(quiz_id)
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+
+    if request.method == 'POST':
+        score = 0
+        for question in questions:
+            selected_option = request.form.get(f'question-{question.id}')
+            if selected_option and int(selected_option) == question.correct_option:
+                score += 1
+
+        attempt = Score(
+            user_id=current_user.user_id,
+            quiz_id=quiz_id,
+            total_scored=score,
+            time_stamp_of_attempt=datetime.now()
+        )
+
+        db.session.add(attempt)
+        db.session.commit()
+
+        return render_template('result.html', score=score, total=len(questions))
+
+
+    return render_template('user_quiz.html', quiz=quiz, questions=questions)

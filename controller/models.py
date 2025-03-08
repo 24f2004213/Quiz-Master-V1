@@ -1,6 +1,7 @@
 from controller.database import db
+from flask_login import UserMixin
 
-class User(db.Model):
+class User(db.Model, UserMixin):
 
     __tablename__ = 'user'
 
@@ -11,6 +12,9 @@ class User(db.Model):
     user_qualification = db.Column(db.String(50), nullable=False)
     dob = db.Column(db.Date, nullable=False)
     roles = db.relationship('Role', secondary='user_role', backref='users', lazy=True)
+
+    def get_id(self):
+        return str(self.user_id)
 
 class Role(db.Model):
 

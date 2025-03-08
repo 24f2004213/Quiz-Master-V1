@@ -2,6 +2,7 @@ from main import app
 from flask import render_template, request, session, flash, redirect, url_for
 from controller.models import *
 from datetime import datetime
+from flask_login import LoginManager,UserMixin, login_required, current_user, login_user, logout_user
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -24,6 +25,11 @@ def login():
         
         #query database to check if user exists
         user = User.query.filter_by(user_email=username).first()
+        if user and user.password == password:  # Replace with hashed password check
+            login_user(user)  # Logs in the user
+            return redirect(url_for('user_dashboard'))  # Redirect to dashboard
+        else:
+            flash('Invalid email or password', 'danger')
         if not user:
             flash('User does not exist... Please register!!!')
             return render_template('login.html')
@@ -104,4 +110,4 @@ def signup():
     session['qualification'] = new_user.user_qualification
     session['dob'] = str(new_user.dob)
 
-    return redirect(url_for('home'))
+    return redirect(url_for('user_dashboard'))

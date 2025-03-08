@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User-Quiz</title>
+</head>
+<body>
+    <h2>{{ quiz.subject }}</h2>
+<p>Time Remaining: <span id="timer">{{ quiz.time_duration }}</span> mins</p>
+
+<form method="POST">
+    {% for question in questions %}
+        <p>{{ question.question_statement }}</p>
+        <input type="radio" name="question-{{ question.id }}" value="1"> {{ question.option1 }}<br>
+        <input type="radio" name="question-{{ question.id }}" value="2"> {{ question.option2 }}<br>
+        <input type="radio" name="question-{{ question.id }}" value="3"> {{ question.option3 }}<br>
+        <input type="radio" name="question-{{ question.id }}" value="4"> {{ question.option4 }}<br>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+let timeLeft = "{{ quiz.time_duration }}" * 60;
+let timerElement = document.getElementById('timer');
+
+function updateTimer() {
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    timerElement.textContent = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    if (timeLeft <= 0) {
+        alert("Time's up!");
+        document.forms[0].submit();
+    }
+    timeLeft--;
+}
+
+setInterval(updateTimer, 1000);
+</script>
+
+</body>
+</html>
