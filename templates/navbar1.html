@@ -15,10 +15,41 @@
             <a class="nav-link" href="#" style="font-size: x-large;">Logout</a>
           </li>
         </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <!-- Search Form -->
+        <form class="d-flex" role="search" onsubmit="event.preventDefault(); performNavbarSearch();">
+          <input class="form-control me-2" type="search" id="navbarSearchQuery" placeholder="Search" aria-label="Search">
+          <select id="navbarSearchFilter" class="form-control me-2">
+              {% if current_user.is_admin %}
+                  <option value="users">Users</option>
+                  <option value="subjects">Subjects</option>
+                  <option value="quizzes">Quizzes</option>
+                  <option value="questions">Questions</option>
+              {% else %}
+                  <option value="subjects">Subjects</option>
+                  <option value="quizzes">Quizzes</option>
+              {% endif %}
+          </select>
           <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
+      </form>
+  </div>
+</div>
+</nav>
+
+<!-- JavaScript for Search -->
+<script>
+function performNavbarSearch() {
+  let query = document.getElementById('navbarSearchQuery').value.trim();
+  let filter = document.getElementById('navbarSearchFilter').value;
+
+  if (query.length < 2) {
+      alert("Please enter at least 2 characters to search.");
+      return;
+  }
+
+  window.location.href = `/search?q=${query}&filter=${filter}`;
+}
+</script>
+
       </div>
     </div>
   </nav>

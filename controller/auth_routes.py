@@ -7,46 +7,44 @@ from flask_login import LoginManager,UserMixin, login_required, current_user, lo
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        
         return render_template('login.html')
-    
+
     if request.method == 'POST':
         username = request.form.get('username', None)
         password = request.form.get('password', None)
 
-        #data validation
+        # 🛑 Data validation
         if not username or not password:
             flash('Please enter valid data')
             return render_template('login.html')
-        
+
         if '@' not in username:
-            flash('Please enter valid username')
+            flash('Please enter a valid email')
             return render_template('login.html')
-        
-        #query database to check if user exists
+
+        # 🔍 Query database to check if user exists
         user = User.query.filter_by(user_email=username).first()
-        if user and user.password == password:  # Replace with hashed password check
-            login_user(user)  # Logs in the user
-            return redirect(url_for('user_dashboard'))  # Redirect to dashboard
-        else:
-            flash('Invalid email or password', 'danger')
         if not user:
-            flash('User does not exist... Please register!!!')
+            flash('User does not exist... Please register!')
             return render_template('login.html')
-        if user.password != password:
+
+        if user.password != password:  # Replace with hashed password check
             flash('Invalid password')
             return render_template('login.html')
-        
+
+        # ✅ Log in the user
+        login_user(user)
         session['user_email'] = user.user_email
-        session['user_role'] = [role.name for role in user.roles]
-        admin_role = Role.query.filter_by(name="admin").first()
-    
-    if admin_role and admin_role in user.roles:
-        session['user_role'] = "admin"
-        return redirect(url_for('home'))
-    else:  
+
+        # ✅ Check if the user is an admin
+        if any(role.name == "admin" for role in user.roles):
+            session['user_role'] = "admin"
+            return redirect(url_for('home'))  # Redirect admin to home
+
+        # ✅ Otherwise, redirect normal user to dashboard
         session['user_role'] = "user"
         return redirect(url_for('user_dashboard'))
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

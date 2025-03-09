@@ -1,5 +1,5 @@
 from main import app
-from flask import render_template, request, session, flash, redirect, url_for
+from flask import render_template, request, session, flash, redirect, url_for, jsonify
 from controller.database import db
 from controller.models import *
 from datetime import datetime
@@ -254,4 +254,51 @@ def view_result(quiz_id):
         return redirect(url_for('scores'))
 
     return render_template('result.html', quiz=quiz, score=user_score)
+
+@app.route('/search', methods=['GET'])
+@login_required
+def search():
+    query = request.args.get('q', '').strip().lower()
+    filter_type = request.args.get('filter', '')
+
+    results = []
+
+    # Admin Search: Users, Subjects, Quizzes, Questions
+    if current_user.roles == "admin":
+        if filter_type == "users":
+            results = User.query.filter(User.name.ilike(f"%{query}%")).all()
+        elif filter_type == "subjects":
+            results = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+        elif filter_type == "quizzes":
+            results = Quiz.query.filter(Quiz.title.ilike(f"%{query}%")).all()
+        elif filter_type == "questions":
+            results = Question.query.filter(Question.question_statement.ilike(f"%{query}%")).all()
+    
+    # User Search: Only Subjects & Quizzes
+    else:
+        if filter_type == "subjects":
+            results = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+        elif filter_type == "quizzes":
+            results = Quiz.query.filter(Quiz.title.ilike(f"%{query}%")).all()
+
+    return render_template('search.html', query=query, filter_type=filter_type, results=results)
+
+@app.route('/quiz/details/<int:quiz_id>')
+def quiz_details(quiz_id):
+    quiz = db.session.query(
+        Quiz.id,
+        Quiz.title,
+        Chapter.name.label("chapter_name"),
+        Subject.name.label("subject_name"),
+        Quiz.date_of_quiz,
+        Quiz.time_duration
+    ).join(Chapter, Quiz.chapter_id == Chapter.id) \
+     .join(Subject, Chapter.subject_id == Subject.id) \
+     .filter(Quiz.id == quiz_id) \
+     .first()
+
+    if not quiz:
+        return "Quiz not found", 404
+
+    return render_template('quiz_details.html', quiz=quiz)
 

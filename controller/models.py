@@ -16,6 +16,10 @@ class User(db.Model, UserMixin):
 
     def get_id(self):
         return str(self.user_id)
+    
+    @property
+    def is_admin(self):
+        return any(role.name == 'admin' for role in self.roles)
 
 class Role(db.Model):
 

@@ -40,7 +40,10 @@ with app.app_context():
             roles = [admin_role]
         )
         db.session.add(admin_user)
-    db.session.commit()
+        db.session.commit()
+    if admin_role not in admin_user.roles:
+        admin_user.roles.append(admin_role)
+        db.session.commit()
 
 from controller.auth_routes import *
 from controller.routes import *
