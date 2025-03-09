@@ -236,3 +236,22 @@ def quiz(quiz_id):
 
 
     return render_template('user_quiz.html', quiz=quiz, questions=questions)
+
+@app.route('/scores')
+@login_required
+def scores():
+    user_scores = Score.query.filter_by(user_id=current_user.user_id).all()
+    return render_template('scores.html', scores=user_scores)
+
+@app.route('/result/<int:quiz_id>')
+@login_required
+def view_result(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    user_score = Score.query.filter_by(user_id=current_user.user_id, quiz_id=quiz_id).first()
+
+    if not user_score:
+        flash("You haven't attempted this quiz yet.", "danger")
+        return redirect(url_for('scores'))
+
+    return render_template('result.html', quiz=quiz, score=user_score)
+

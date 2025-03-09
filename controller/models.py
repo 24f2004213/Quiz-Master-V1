@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     user_qualification = db.Column(db.String(50), nullable=False)
     dob = db.Column(db.Date, nullable=False)
     roles = db.relationship('Role', secondary='user_role', backref='users', lazy=True)
+    scores = db.relationship('Score', backref='user', lazy=True)
 
     def get_id(self):
         return str(self.user_id)
@@ -61,6 +62,7 @@ class Quiz(db.Model):
     time_duration = db.Column(db.String(10), nullable=False)
     remarks = db.Column(db.String(500))
     questions = db.relationship('Question', backref='quiz', lazy=True)
+    scores = db.relationship('Score', backref='quiz', lazy=True)
 
 class Question(db.Model):
 
