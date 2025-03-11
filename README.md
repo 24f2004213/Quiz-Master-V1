@@ -57,6 +57,10 @@ The project is built using the following frameworks:
    python3 -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
-4. Run the application locally:
+4. Install few dependencies:
    ```bash
-   flask run
+   pip install flask login
+   pip install matplotlib
+5. Run the application locally:
+   ```bash
+   python main.py
