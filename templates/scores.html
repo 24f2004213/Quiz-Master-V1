@@ -41,6 +41,11 @@
             background-color: #007bff;
             border-color: #007bff;
         }
+        .back{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -54,7 +59,7 @@
         {% for score in scores %}
             <div class="card score-box">
                 <div class="card-body">
-                    <h5 class="card-title">{{ score.quiz.title }}</h5>
+                    <center><h5 class="card-title">{{ score.quiz.title }}</h5></center>
                     <p><strong>Subject:</strong> {{ score.quiz.chapter.subject.name }}</p>
                     <p><strong>Chapter:</strong> {{ score.quiz.chapter.name }}</p>
                     <p><strong>Score:</strong> {{ score.total_scored }} / {{ score.quiz.questions|length }}</p>
@@ -67,7 +72,9 @@
             </div>
         {% endfor %}
     </div>
-
+    <div class="back">
+        <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
     
 
 {% endblock %}

@@ -13,7 +13,6 @@ def login():
         username = request.form.get('username', None)
         password = request.form.get('password', None)
 
-        # 🛑 Data validation
         if not username or not password:
             flash('Please enter valid data')
             return render_template('login.html')
@@ -22,26 +21,22 @@ def login():
             flash('Please enter a valid email')
             return render_template('login.html')
 
-        # 🔍 Query database to check if user exists
         user = User.query.filter_by(user_email=username).first()
         if not user:
             flash('User does not exist... Please register!')
             return render_template('login.html')
 
-        if user.password != password:  # Replace with hashed password check
+        if user.password != password:  
             flash('Invalid password')
             return render_template('login.html')
 
-        # ✅ Log in the user
         login_user(user)
         session['user_email'] = user.user_email
 
-        # ✅ Check if the user is an admin
         if any(role.name == "admin" for role in user.roles):
             session['user_role'] = "admin"
-            return redirect(url_for('home'))  # Redirect admin to home
+            return redirect(url_for('home'))  
 
-        # ✅ Otherwise, redirect normal user to dashboard
         session['user_role'] = "user"
         return redirect(url_for('user_dashboard'))
 
@@ -53,7 +48,6 @@ def signup():
         return render_template('signup.html')
 
 
-    # Debug: Print full form data
 
     username = request.form.get('username')
     password = request.form.get('password')
@@ -62,7 +56,6 @@ def signup():
     dob = request.form.get('dob')
 
 
-    # Validate input
     if not username or not password or not fullname or not qualification or not dob:
         flash('Please enter all required fields', 'error')
         return render_template('signup.html')
@@ -71,20 +64,17 @@ def signup():
         flash('Invalid email address', 'error')
         return render_template('signup.html')
 
-    # Convert dob string to date object
     try:
         dob_object = datetime.strptime(dob, "%Y-%m-%d").date()
     except ValueError:
         flash('Invalid date format. Use YYYY-MM-DD', 'error')
         return render_template('signup.html')
 
-    # Check if user exists
     existing_user = User.query.filter_by(user_email=username).first()
     if existing_user:
         flash('User already exists. Please log in.', 'error')
         return redirect(url_for('login'))
 
-    # Create user
     new_user = User(
         user_email=username,
         password=password,  
@@ -109,3 +99,10 @@ def signup():
     session['dob'] = str(new_user.dob)
 
     return redirect(url_for('user_dashboard'))
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    session.clear()
+    return redirect(url_for('login'))

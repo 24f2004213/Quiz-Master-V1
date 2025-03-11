@@ -2,8 +2,9 @@ from main import app
 from flask import render_template, request, session, flash, redirect, url_for, jsonify
 from controller.database import db
 from controller.models import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_login import LoginManager,UserMixin, login_required, current_user, login_user, logout_user
+from sqlalchemy import func
 
 @app.route('/')
 def index():
@@ -15,16 +16,23 @@ def home():
     return render_template('home.html', subjects=subjects)
 @app.route('/user_dashboard')
 def user_dashboard():
+    question_count_subquery = db.session.query(
+    Question.quiz_id, func.count(Question.id).label("question_count")
+).group_by(Question.quiz_id).subquery()
+
+# Main query to fetch quiz details along with the question count
     quizzes = db.session.query(
         Quiz.id,
         Quiz.title,
         Chapter.name.label("chapter_name"),
-        Subject.name.label("subject_name"),  # Fetch subject name
+        Subject.name.label("subject_name"),
         Quiz.date_of_quiz,
-        Quiz.time_duration
+        Quiz.time_duration,
+        func.coalesce(question_count_subquery.c.question_count, 0).label("question_count")  # Ensure 0 for empty quizzes
     ).join(Chapter, Quiz.chapter_id == Chapter.id) \
-     .join(Subject, Chapter.subject_id == Subject.id) \
-     .all()
+    .join(Subject, Chapter.subject_id == Subject.id) \
+    .outerjoin(question_count_subquery, Quiz.id == question_count_subquery.c.quiz_id) \
+    .all()
     return render_template('user_dashboard.html', quizzes=quizzes, user = current_user)
 @app.route('/subject', methods=['GET', 'POST'])
 def subject():
@@ -105,40 +113,55 @@ def add_quiz():
         title = request.form.get('title')
         chapter_id = request.form.get('chapter_id')
         date_of_quiz = request.form.get('date_of_quiz')
+        time_start = request.form.get('time_start')
         time_duration = request.form.get('time_duration')
         remarks = request.form.get('remarks')
 
         # Validate required fields
-        if not title or not chapter_id or not date_of_quiz or not time_duration:
+        if not title or not chapter_id or not date_of_quiz or not time_start or not time_duration:
             flash("All fields except remarks are required.", "error")
             return redirect(url_for('add_quiz'))
 
-        # Convert date_of_quiz to datetime format
+        # Convert date_of_quiz to datetime.date format
         try:
-            date_of_quiz = datetime.strptime(date_of_quiz, "%Y-%m-%d")
+            date_of_quiz = datetime.strptime(date_of_quiz, "%Y-%m-%d").date()
         except ValueError:
             flash("Invalid date format. Use YYYY-MM-DD.", "error")
             return redirect(url_for('add_quiz'))
 
+        # Convert time_start to datetime.time format
+        try:
+            time_start = datetime.strptime(time_start, "%H:%M").time()
+        except ValueError:
+            flash("Invalid time format. Use HH:MM.", "error")
+            return redirect(url_for('add_quiz'))
+
         # Create a new quiz object
-        new_quiz = Quiz(
-            title=title,
-            chapter_id=chapter_id,
-            date_of_quiz=date_of_quiz,
-            time_duration=int(time_duration),
-            remarks=remarks
-        )
+        try:
+            new_quiz = Quiz(
+                title=title,
+                chapter_id=chapter_id,
+                date_of_quiz=date_of_quiz,
+                time_start=time_start,
+                time_duration=int(time_duration),  # Ensure time_duration is an integer
+                remarks=remarks
+            )
 
-        # Save to database
-        db.session.add(new_quiz)
-        db.session.commit()
+            # Save to the database
+            db.session.add(new_quiz)
+            db.session.commit()
 
-        flash("Quiz added successfully!", "success")
-        return redirect(url_for('quiz_list'))  # Redirect to quiz list
+            flash("Quiz added successfully!", "success")
+            return redirect(url_for('quiz_list'))  # Redirect to the quiz list
+        except Exception as e:
+            flash(f"An error occurred while adding the quiz: {str(e)}", "error")
+            db.session.rollback()
+            return redirect(url_for('add_quiz'))
 
     # Fetch available chapters to display in the form
     chapters = Chapter.query.all()
     return render_template('add_quiz.html', chapters=chapters)
+
 
 
 @app.route('/add-question/<int:quiz_id>', methods=['GET', 'POST'])
@@ -215,6 +238,20 @@ def quiz(quiz_id):
     quiz = Quiz.query.get(quiz_id)
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
 
+    if not quiz:
+        return {"status": "error", "message": "Quiz not found."}
+
+    current_time = datetime.now()
+    quiz_start = datetime.combine(quiz.date_of_quiz, quiz.time_start)
+    quiz_end = quiz_start + timedelta(minutes=int(quiz.time_duration))
+
+    if current_time < quiz_start:
+        return redirect(url_for('user_dashboard', status='not_started', quiz_time=quiz.time_start.strftime('%H:%M')))
+    if current_time > quiz_end:
+        return redirect(url_for('user_dashboard', status='ended'))
+    if current_time > quiz_start and current_time < quiz_end:
+        return redirect(url_for('user_quiz',status='active', quiz_id=quiz_id))
+
     if request.method == 'POST':
         score = 0
         for question in questions:
@@ -226,13 +263,13 @@ def quiz(quiz_id):
             user_id=current_user.user_id,
             quiz_id=quiz_id,
             total_scored=score,
-            time_stamp_of_attempt=datetime.now()
+            time_stamp_of_attempt=current_time
         )
 
         db.session.add(attempt)
         db.session.commit()
 
-        return render_template('result.html', score=score, total=len(questions))
+        return render_template('result.html', score=score, total=len(questions), quiz=quiz)
 
 
     return render_template('user_quiz.html', quiz=quiz, questions=questions)
@@ -302,3 +339,56 @@ def quiz_details(quiz_id):
 
     return render_template('quiz_details.html', quiz=quiz)
 
+@app.route('/api/subjects', methods=['GET'])
+def api_get_subjects():
+    subjects = Subject.query.all()
+    return jsonify([{"id": subject.id, "name": subject.name} for subject in subjects])
+
+@app.route('/api/chapters', methods=['GET'])
+def api_get_chapters():
+    subject_id = request.args.get('subject_id')
+    if subject_id:
+        chapters = Chapter.query.filter_by(subject_id=subject_id).all()
+    else:
+        chapters = Chapter.query.all()
+    return jsonify([
+        {"id": chapter.id, "name": chapter.name, "subject_id": chapter.subject_id} 
+        for chapter in chapters
+    ])
+
+@app.route('/api/quizzes', methods=['GET'])
+def api_get_quizzes():
+    chapter_id = request.args.get('chapter_id')
+    if chapter_id:
+        quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+    else:
+        quizzes = Quiz.query.all()
+    return jsonify([
+        {
+            "id": quiz.id,
+            "title": quiz.title,
+            "chapter_id": quiz.chapter_id,
+            "date_of_quiz": quiz.date_of_quiz.strftime('%Y-%m-%d'),
+            "time_start": quiz.time_start.strftime('%H:%M'),
+            "time_duration": quiz.time_duration
+        }
+        for quiz in quizzes
+    ])
+
+@app.route('/api/scores', methods=['GET'])
+def api_get_scores():
+    user_id = request.args.get('user_id')
+    if user_id:
+        scores = Score.query.filter_by(user_id=user_id).all()
+    else:
+        scores = Score.query.all()
+    return jsonify([
+        {
+            "id": score.id,
+            "user_id": score.user_id,
+            "quiz_id": score.quiz_id,
+            "total_scored": score.total_scored,
+            "time_stamp_of_attempt": score.time_stamp_of_attempt.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        for score in scores
+    ])
