@@ -5,9 +5,13 @@ from controller.models import *
 from datetime import datetime
 from flask_login import LoginManager,UserMixin, login_required, current_user, login_user, logout_user
 
+
+
 app = Flask(__name__)
 app.config.from_object(config)
 db.init_app(app)
+
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)  
@@ -19,6 +23,9 @@ def load_user(user_id):
 
 login_manager.login_view = 'login'
 
+
+
+#admin information
 with app.app_context():
     db.create_all()
 
@@ -45,6 +52,8 @@ with app.app_context():
         admin_user.roles.append(admin_role)
         db.session.commit()
 
+
+#sigin, signup, logout endpoints call
 from controller.auth_routes import *
 from controller.routes import *
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>                 <!-- This file helps in showing result of quiz with feedback -->
+<!DOCTYPE html>                 <!-- This file helps in showing score-result of quiz with feedback -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -70,7 +70,7 @@
 {% block content %}
 <h2 class="text-center">Quiz Results: {{ quiz.title }}</h2>
 <div class="score">
-<p class="text-center"><strong>You Scored: {{ score }} / {{ quiz.questions|length }}</strong></p>
+<p class="text-center"><strong>You Scored: {{ score.total_scored }} / {{ quiz.questions|length }}</strong></p>
 </div>
 
 <div class="quiz-container">

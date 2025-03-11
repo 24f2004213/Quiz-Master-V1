@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>              <!-- This file is responsible for displaying quiz to users -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +10,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
         crossorigin="anonymous"
     />
-    <!-- Custom CSS -->
+    <!-- CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
     <style>
         .container {
@@ -25,11 +25,11 @@
             max-width: 800px;
             color: white;
         }
-        .quiz-container {
+        .quiz-container { /* contains all quiz questions and answers  */
             margin: auto;
             max-width: 800px;
         }
-        .question-box {
+        .question-box { /* contains quiz question in it */
             background: #f8f9fa; /* Light grey background */
             border-left: 5px solid #007bff; /* Blue highlight */
             padding: 15px;
@@ -37,13 +37,13 @@
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
-        .option-box {
+        .option-box {  /* contains all options of question */
             padding: 10px;
             margin: 5px 0;
             border-radius: 5px;
             font-weight: bold;
         }
-        .timer {
+        .timer {  /* timer functionality for quiz */
             font-size: 1.5rem;
             font-weight: bold;
             color: #dc3545; /* Red color for urgency */
@@ -81,12 +81,14 @@
         const timeStart = "{{ quiz.time_start }}";  // Time start in HH:MM format
         const timeDuration = parseInt("{{ quiz.time_duration }}", 10) * 60;  // Duration in seconds
 
+
         // Calculate the quiz end time
         const startDateTime = new Date();  // Current date for today's date
         [startHour, startMinute] = timeStart.split(':').map(Number);  // Parse hours and minutes
         startDateTime.setHours(startHour, startMinute, 0, 0);  // Set hours, minutes, and seconds to start time
         const endDateTime = new Date(startDateTime.getTime() + timeDuration * 1000);  // Add the duration
 
+        
         function updateTimer() {
             const now = new Date();  // Current time
             const timeRemaining = (endDateTime - now) / 1000;  // Time left in seconds

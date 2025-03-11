@@ -10,14 +10,23 @@ import io
 import base64
 import numpy as np
 
+#landing page route of application
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+##########################################################################################################
+
+#landing page route for admin login
 
 @app.route('/home')
 def home():
     subjects = Subject.query.options(db.joinedload(Subject.chapters)).all()
     return render_template('home.html', subjects=subjects)
+
+
+#landing page route for users
 @app.route('/user_dashboard')
 def user_dashboard():
     question_count_subquery = db.session.query(
@@ -38,6 +47,11 @@ def user_dashboard():
     .outerjoin(question_count_subquery, Quiz.id == question_count_subquery.c.quiz_id) \
     .all()
     return render_template('user_dashboard.html', quizzes=quizzes, user = current_user)
+
+#############################################################################################################
+
+#adding subject route for admin
+
 @app.route('/subject', methods=['GET', 'POST'])
 def subject():
     if request.method == 'POST':
@@ -58,6 +72,11 @@ def subject():
         return redirect(url_for('home'))
         
     return render_template('subject.html')
+
+##############################################################################################################
+
+
+#adding chapter route for admin
 
 @app.route('/chapter/<int:subject_id>', methods=['GET', 'POST']) 
 def chapter(subject_id):
@@ -80,6 +99,12 @@ def chapter(subject_id):
 
     return render_template('chapter.html', subject=subject)
 
+################################################################################################################
+
+
+
+# edit chapter route for admin
+
 @app.route('/edit_chapter/<int:chapter_id>', methods=['GET', 'POST'])
 def edit_chapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)  
@@ -93,6 +118,11 @@ def edit_chapter(chapter_id):
 
     return render_template('edit_chapter.html', chapter=chapter) 
 
+#################################################################################################################
+
+
+# delete chapter route for admin
+
 @app.route('/delete_chapter/<int:chapter_id>', methods=['POST'])
 def delete_chapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)  # Fetch the chapter
@@ -104,12 +134,21 @@ def delete_chapter(chapter_id):
     return redirect(url_for('home'))  # Redirect to home page
 
 
+#################################################################################################################
+
+# quiz showing page route for admin where admin can add quizzes
+
 @app.route('/quiz-list', methods=['GET', 'POST'])
 def quiz_list():
     quizzes = Quiz.query.all()
     questions = Question.query.all()
         
     return render_template('quiz.html', quizzes=quizzes, questions=questions)
+
+##################################################################################################################
+
+
+# add-quiz route for admin
 
 @app.route('/add-quiz', methods=['GET', 'POST'])
 def add_quiz():
@@ -166,7 +205,9 @@ def add_quiz():
     chapters = Chapter.query.all()
     return render_template('add_quiz.html', chapters=chapters)
 
+######################################################################################################################
 
+#add-question route for admin
 
 @app.route('/add-question/<int:quiz_id>', methods=['GET', 'POST'])
 def add_question_page(quiz_id):
@@ -203,6 +244,11 @@ def add_question_page(quiz_id):
 
     return render_template('add_question.html', quiz=quiz)
 
+#####################################################################################################################
+
+
+#edit question route for admin
+
 @app.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
 def edit_question(question_id):
     question = Question.query.get_or_404(question_id)  # Fetch question or return 404 if not found
@@ -222,6 +268,11 @@ def edit_question(question_id):
 
     return render_template('edit_question.html', question=question)
 
+######################################################################################################################
+
+
+#delete question route for admin
+
 @app.route('/delete_question/<int:question_id>', methods=['POST'])
 def delete_question(question_id):
     question = Question.query.get_or_404(question_id)  # Fetch question or return 404 if not found
@@ -231,6 +282,10 @@ def delete_question(question_id):
     flash('Question deleted successfully!', 'success')
 
     return redirect(url_for('quiz_list'))  # Redirect to quiz list page
+
+######################################################################################################################
+
+# route where quiz question are displayed
 
 @app.route('/quiz/<int:quiz_id>', methods=['GET', 'POST'])
 @login_required
@@ -279,11 +334,20 @@ def quiz(quiz_id):
 
     return render_template('user_quiz.html', quiz=quiz, questions=questions)
 
+######################################################################################################################
+
+# routee which shows scores to users
+
 @app.route('/scores')
 @login_required
 def scores():
     user_scores = Score.query.filter_by(user_id=current_user.user_id).all()
     return render_template('scores.html', scores=user_scores)
+
+#####################################################################################################################
+
+
+#route which shows result to users
 
 @app.route('/result/<int:quiz_id>')
 @login_required
@@ -295,7 +359,12 @@ def view_result(quiz_id):
         flash("You haven't attempted this quiz yet.", "danger")
         return redirect(url_for('scores'))
 
-    return render_template('result.html', quiz=quiz, score=user_score)
+    return render_template('score_result.html', quiz=quiz, score=user_score)
+
+##############################################################################################################
+
+
+# search route
 
 @app.route('/search', methods=['GET'])
 @login_required
@@ -325,6 +394,11 @@ def search():
     
     return render_template('search.html', query=query, filter_type=filter_type, results=results)
 
+###########################################################################################################
+
+
+# quiz details route
+
 @app.route('/quiz/details/<int:quiz_id>')
 def quiz_details(quiz_id):
     quiz = db.session.query(
@@ -339,10 +413,17 @@ def quiz_details(quiz_id):
      .filter(Quiz.id == quiz_id) \
      .first()
 
+    
+
     if not quiz:
         return "Quiz not found", 404
 
     return render_template('quiz_details.html', quiz=quiz)
+
+##########################################################################################################
+
+
+# api for subjects, chapters, quizzes and scores
 
 @app.route('/api/subjects', methods=['GET'])
 def api_get_subjects():
@@ -398,7 +479,12 @@ def api_get_scores():
         for score in scores
     ])
 
-@app.route('/performance')
+################################################################################################################
+
+
+# routes for summary graphss
+
+@app.route('/performance')  #user summary graphs route
 @login_required
 def user_performance():
     """Route to display quiz performance charts for the logged-in user."""
@@ -410,7 +496,7 @@ def user_performance():
     return render_template('performance.html', quizzes=quizzes, scores=scores_obtained, totals=total_questions)
 
 
-@app.route('/admin/summary')
+@app.route('/admin/summary')  # admin summary graph routes
 @login_required
 def admin_summary():
     """Route to display summary statistics for quizzes and users in graph form."""
@@ -432,6 +518,11 @@ def admin_summary():
     }
 
     return render_template('admin_summary.html', stats=stats)
+
+################################################################################################################
+
+
+# user-profile route
 
 @app.route('/user_profile/<int:user_id>', methods=['GET'])
 @login_required

@@ -1,52 +1,63 @@
-<nav class="navbar navbar-expand-lg fixed-top" style="padding: 0 108px; margin-top: 10px; margin-bottom: 15px;">
-  <div class="container-fluid">
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="user_dashboard" style="font-size: x-large;">Home | </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="scores" style="font-size: x-large;">Score | </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="performance" style="font-size: x-large;">Summary | </a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="logout" style="font-size: x-large;">Logout</a>
-              </li>
-          </ul>
-
-          <!-- Search Form -->
-          <form class="d-flex" role="search" onsubmit="event.preventDefault(); performNavbarSearch();">
-              <input class="form-control me-2" type="search" id="navbarSearchQuery" placeholder="Search" aria-label="Search">
-              <select id="navbarSearchFilter" class="form-control me-2">
-                  {% if current_user.is_admin %}
-                      <option value="users">Users</option>
-                      <option value="subjects">Subjects</option>
-                      <option value="quizzes">Quizzes</option>
-                      <option value="questions">Questions</option>
-                  {% else %}
-                      <option value="subjects">Subjects</option>
-                      <option value="quizzes">Quizzes</option>
-                  {% endif %}
-              </select>
-              <button class="btn btn-outline-primary" type="submit">Search</button>
-          </form>
-      </div>
-  </div>
-</nav>
-
-<!-- JavaScript for Search -->
-<script>
-  function performNavbarSearch() {
-      let query = document.getElementById('navbarSearchQuery').value.trim();
-      let filter = document.getElementById('navbarSearchFilter').value;
-
-      if (query.length < 2) {
-          alert("Please enter at least 2 characters to search.");
-          return;
-      }
-
-      window.location.href = `/search?q=${query}&filter=${filter}`;
-  }
-</script>
+<!DOCTYPE html>         <!-- This file is used as navbar for user functionalities -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>navbar2</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top" style="padding: 0 108px; margin-top: 10px; margin-bottom: 15px;">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="user_dashboard" style="font-size: x-large;">Home | </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="scores" style="font-size: x-large;">Score | </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="performance" style="font-size: x-large;">Summary | </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="logout" style="font-size: x-large;">Logout</a>
+                    </li>
+                </ul>
+      
+                <!-- Search Form -->
+                <form class="d-flex" role="search" onsubmit="event.preventDefault(); performNavbarSearch();">
+                    <input class="form-control me-2" type="search" id="navbarSearchQuery" placeholder="Search" aria-label="Search">
+                    <select id="navbarSearchFilter" class="form-control me-2">
+                        {% if current_user.is_admin %}
+                            <option value="users">Users</option>
+                            <option value="subjects">Subjects</option>
+                            <option value="quizzes">Quizzes</option>
+                            <option value="questions">Questions</option>
+                        {% else %}
+                            <option value="subjects">Subjects</option>
+                            <option value="quizzes">Quizzes</option>
+                        {% endif %}
+                    </select>
+                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+      </nav>
+      
+      <!-- JavaScript for Search -->
+      <script>
+        function performNavbarSearch() {
+            let query = document.getElementById('navbarSearchQuery').value.trim();
+            let filter = document.getElementById('navbarSearchFilter').value;
+      
+            if (query.length < 2) {
+                alert("Please enter at least 2 characters to search.");
+                return;
+            }
+      
+            window.location.href = `/search?q=${query}&filter=${filter}`;
+        }
+      </script>
+      
+</body>
+</html>
