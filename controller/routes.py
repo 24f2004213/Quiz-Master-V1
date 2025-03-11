@@ -302,13 +302,13 @@ def view_result(quiz_id):
 def search():
     query = request.args.get('q', '').strip().lower()
     filter_type = request.args.get('filter', '')
-
+    
     results = []
 
     # Admin Search: Users, Subjects, Quizzes, Questions
-    if current_user.roles == "admin":
+    if current_user.is_admin:
         if filter_type == "users":
-            results = User.query.filter(User.name.ilike(f"%{query}%")).all()
+            results = User.query.filter(User.user_name.ilike(f"%{query}%")).all()
         elif filter_type == "subjects":
             results = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
         elif filter_type == "quizzes":
@@ -322,7 +322,7 @@ def search():
             results = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
         elif filter_type == "quizzes":
             results = Quiz.query.filter(Quiz.title.ilike(f"%{query}%")).all()
-
+    
     return render_template('search.html', query=query, filter_type=filter_type, results=results)
 
 @app.route('/quiz/details/<int:quiz_id>')
@@ -432,3 +432,13 @@ def admin_summary():
     }
 
     return render_template('admin_summary.html', stats=stats)
+
+@app.route('/user_profile/<int:user_id>', methods=['GET'])
+@login_required
+def user_profile(user_id):
+    # Fetch the user from the database using the user_id
+    user = User.query.get_or_404(user_id)
+
+    # If needed, you can add additional checks here, such as role-based access
+
+    return render_template('user_profile.html', user=user)

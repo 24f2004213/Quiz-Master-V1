@@ -44,6 +44,7 @@ class Subject(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.String(50))
     chapters = db.relationship('Chapter', backref='subject', lazy=True)
+    
 
 class Chapter(db.Model):
 

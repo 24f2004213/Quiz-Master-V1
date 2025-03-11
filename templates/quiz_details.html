@@ -43,7 +43,7 @@
             <p><strong>Scheduled Date:</strong> {{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</p>
             <p><strong>Duration:</strong> {{ quiz.time_duration }} minutes</p>
             <center>
-            <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary mt-3" style="max-width:fit-content;">Back to Quizzes</a>
+                <a href="javascript:history.back()" class="btn btn-primary mt-3" style="max-width: fit-content;">Back to Quizzes</a>
             </center>
         </div>
     </div>

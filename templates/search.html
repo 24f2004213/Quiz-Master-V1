@@ -32,19 +32,19 @@
                     <div class="card-body">
                         <h5 class="card-title font-weight-bold">
                             {% if filter_type == "users" %}
-                                👤 {{ result.name }}
+                                👤 {{ result.user_name }}
                             {% elif filter_type == "subjects" %}
                                 📚 {{ result.name }}
                             {% elif filter_type == "quizzes" %}
                                 📝 {{ result.title }}
                             {% elif filter_type == "questions" %}
-                                ❓ Question {{ loop.index }}
+                                ❓ {{result.question_statement}}
                             {% endif %}
                         </h5>
-
+                        <center>
                         <p class="card-text">
                             {% if filter_type == "users" %}
-                                <strong>Email:</strong> {{ result.email }}
+                                <strong>Email:</strong> {{ result.user_email }}
                             {% elif filter_type == "quizzes" %}
                                 <strong>Date:</strong> {{ result.date_of_quiz.strftime('%Y-%m-%d') }} <br>
                                 <strong>Duration:</strong> {{ result.time_duration }} minutes
@@ -53,16 +53,15 @@
                                 <strong>Correct Answer:</strong> Option {{ result.correct_option }}
                             {% else %}
                                 <strong>Details:</strong> {{result.description}}<br>
-                                <strong>Chapter:</strong> {{ result.chapter| length }} <br>
-                                <strong>Number of Questions:</strong> {{ result.questions|length }}
+                                <strong>No. of Chapter:</strong> {{ result.chapters| length }} <br>
                             {% endif %}
                         </p>
-
+                        </center>
                         <div class="text-center">
                             {% if filter_type == "quizzes" %}
                             <a href="{{ url_for('quiz_details', quiz_id=result.id) }}" class="btn btn-light text-primary rounded-pill px-3">View Quiz</a>
                             {% elif filter_type == "users" %}
-                                <a href="{{ url_for('user_profile', user_id=result.id) }}" class="btn btn-light text-primary rounded-pill px-3">View Profile</a>
+                                <a href="{{ url_for('user_profile', user_id=result.user_id) }}" class="btn btn-light text-primary rounded-pill px-3">View Profile</a>
                             {% endif %}
                         </div>
                     </div>
