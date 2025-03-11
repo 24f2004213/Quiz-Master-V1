@@ -5,6 +5,10 @@ from controller.models import *
 from datetime import datetime, timedelta
 from flask_login import LoginManager,UserMixin, login_required, current_user, login_user, logout_user
 from sqlalchemy import func
+import matplotlib.pyplot as plt
+import io
+import base64
+import numpy as np
 
 @app.route('/')
 def index():
@@ -250,7 +254,8 @@ def quiz(quiz_id):
     if current_time > quiz_end:
         return redirect(url_for('user_dashboard', status='ended'))
     if current_time > quiz_start and current_time < quiz_end:
-        return redirect(url_for('user_quiz',status='active', quiz_id=quiz_id))
+        if request.args.get('status') != 'active':  # Check if 'active' status is already set
+            return redirect(url_for('quiz', status='active', quiz_id=quiz_id))
 
     if request.method == 'POST':
         score = 0
@@ -392,3 +397,38 @@ def api_get_scores():
         }
         for score in scores
     ])
+
+@app.route('/performance')
+@login_required
+def user_performance():
+    """Route to display quiz performance charts for the logged-in user."""
+    scores = Score.query.filter_by(user_id=current_user.user_id).all()
+    quizzes = [score.quiz.title for score in scores]
+    scores_obtained = [score.total_scored for score in scores]
+    total_questions = [len(Question.query.filter_by(quiz_id=score.quiz_id).all()) for score in scores]
+
+    return render_template('performance.html', quizzes=quizzes, scores=scores_obtained, totals=total_questions)
+
+
+@app.route('/admin/summary')
+@login_required
+def admin_summary():
+    """Route to display summary statistics for quizzes and users in graph form."""
+    if not current_user.is_admin:  # Assume you have an `is_admin` field on your User model
+        return "Access Denied", 403
+
+    # Fetch statistics
+    user_count = User.query.count()
+    quiz_count = Quiz.query.count()
+    question_count = Question.query.count()
+    total_scores = db.session.query(func.sum(Score.total_scored)).scalar()
+
+    # Data for charts
+    stats = {
+        "users": user_count ,
+        "quizzes": quiz_count ,
+        "questions": question_count,
+        "total_scores": total_scores   # Handle None case for scores
+    }
+
+    return render_template('admin_summary.html', stats=stats)

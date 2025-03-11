@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Summary</title>
+    {% block bootstrap_css %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    {% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 67%;
+            height: 500px;
+            margin: auto;
+            margin-top: 50px;
+            background-color: white;
+            border-radius: 5px;
+        }
+
+        .stat-header {
+            text-align: center;
+            margin-bottom: 10px;
+            padding-top: 10px;
+            padding-bottom: 5px;
+            color: white;
+        }
+        .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .btn-primary:hover {
+        background-color: #0056b3;
+      }
+      .back{
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            size: 50px;
+        }
+        
+    </style>
+</head>
+<body>
+    <h2 class="stat-header" style=" font-size: xx-large; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">Admin Summary Statistics</h2>
+
+    <div class="chart-container">
+        <canvas id="summaryChart"></canvas>
+    </div>
+    <div class="back">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+    <script>
+        // Ensure stats data is passed from Flask
+        const stats = '{{ stats | tojson | safe }}';
+        console.log("Stats received in template:", stats);  // Debugging output
+    
+        // Data for Chart.js
+        const data = {
+            labels: ["Users", "Quizzes", "Questions", "Total Scores"],
+            datasets: [{
+                label: "Admin Summary Statistics",
+                data: ['{{stats.users}}', '{{stats.quizzes}}', '{{stats.questions}}', '{{stats.total_scores}}'],
+                backgroundColor: [
+                    "rgba(75, 192, 192, 0.2)", // Users
+                    "rgba(255, 99, 132, 0.2)", // Quizzes
+                    "rgba(255, 206, 86, 0.2)", // Questions
+                    "rgba(54, 162, 235, 0.2)"  // Total Scores
+                ],
+                borderColor: [
+                    "rgba(75, 192, 192, 1)",
+                    "rgba(255, 99, 132, 1)",
+                    "rgba(255, 206, 86, 1)",
+                    "rgba(54, 162, 235, 1)"
+                ],
+                borderWidth: 2
+            }]
+        };
+    
+        // Chart configuration
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Admin Summary Statistics Overview'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+    
+        // Render the chart
+        new Chart(document.getElementById("summaryChart"), config);
+    </script>
+</body>
+</html>
