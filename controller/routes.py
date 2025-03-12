@@ -127,6 +127,8 @@ def edit_chapter(chapter_id):
 def delete_chapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)  # Fetch the chapter
     
+
+    Quiz.query.filter_by(chapter_id=chapter_id).delete()
     db.session.delete(chapter)  # Delete from database
     db.session.commit()  # Save changes
     
